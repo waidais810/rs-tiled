@@ -15,6 +15,8 @@ pub struct ObjectLayerData {
     objects: Vec<ObjectData>,
     /// The color used in the editor to display objects in this layer.
     pub colour: Option<Color>,
+    /// The draw order of the objects in this layer.
+    pub draworder: Option<String>,
 }
 
 impl ObjectLayerData {
@@ -30,11 +32,12 @@ impl ObjectLayerData {
         reader: &mut impl ResourceReader,
         cache: &mut impl ResourceCache,
     ) -> Result<(ObjectLayerData, Properties)> {
-        let c = get_attrs!(
+        let (c, draworder) = get_attrs!(
             for v in attrs {
                 Some("color") => color ?= v.parse(),
+                Some("draworder") => draworder ?= v.parse(),
             }
-            color
+            (color, draworder)
         );
         let mut objects = Vec::new();
         let mut properties = HashMap::new();
@@ -48,7 +51,7 @@ impl ObjectLayerData {
                 Ok(())
             },
         });
-        Ok((ObjectLayerData { objects, colour: c }, properties))
+        Ok((ObjectLayerData { objects, colour: c, draworder }, properties))
     }
 
     /// Returns the data belonging to the objects contained within the layer, in the order they were
